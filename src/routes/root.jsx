@@ -29,6 +29,9 @@ export default function Root() {
             <li>
               <Link to={`findAnswers`}>Find Answers</Link>
             </li>
+            <li>
+              <Link to={`contacts`}>Contact</Link>
+            </li>
           </ul>
         </nav>
       </div>

@@ -7,6 +7,7 @@ import Grid from "@mui/material/Grid";
 import { styled } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
+import { Link } from "react-router-dom";
 
 import Arweave from "arweave";
 const arweave = Arweave.init({
@@ -15,13 +16,6 @@ const arweave = Arweave.init({
   protocol: "https",
 });
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "left",
-  color: theme.palette.text.secondary,
-}));
 const endpoint = "https://arweave.net/graphql/";
 const FILMS_QUERY = `
 {
@@ -29,7 +23,7 @@ const FILMS_QUERY = `
       tags: [
         { name: "App-Name", values: ["web3fordev"] },
         { name: "Content-Type", values: ["application/json"] }
-        { name: "Version", values: ["0.0.0"] }
+        { name: "Version", values: ["0.0.1"] }
       ]
     ) {
       edges {
@@ -58,7 +52,8 @@ const FILMS_QUERY = `
 export default function Contact() {
   const [display, setDisplay] = React.useState([]);
   const [data, setData] = React.useState([]);
-
+  const [txId, setTxId] = React.useState([]);
+  var txidTable = [];
   React.useEffect(() => {
     async function postQuery() {
       const response = await axios({
@@ -80,7 +75,9 @@ export default function Contact() {
     if (data) {
       data.map((current) => {
         promises.push(arweave.api.get(current.node.id));
+        txidTable.push(current.node.id);
       });
+      setTxId(txidTable);
 
       Promise.all(promises).then((results) => {
         let oldDisplay = [...display];
@@ -88,16 +85,14 @@ export default function Contact() {
           if (res?.data?.question) {
             oldDisplay.push(res?.data?.question);
           }
-          //   else if (res?.data?.question?.title) {
-          //     oldDisplay.push(res?.data?.question?.title);
-          //   }
         });
-
         setDisplay(oldDisplay);
       });
     }
   }, [data]);
-
+  function RedirectURL(id) {
+    window.location = "https://viewblock.io/arweave/address/" + id;
+  }
   return (
     <div>
       <Grid container spacing={2}>
@@ -105,7 +100,7 @@ export default function Contact() {
           return (
             <div>
               <Grid color="#3992FF" item xs={12}>
-                {current.question_title}
+                <Link to={`/tx/${txId[i]}`}>{current.question_title}</Link>
               </Grid>
               <Grid color="#838181" fontSize={"14px"} item xs={12}>
                 {current.question_body}
@@ -121,6 +116,26 @@ export default function Contact() {
                     />
                   );
                 })}
+              </Grid>
+              <br></br>
+              <Grid
+                item
+                color="black"
+                fontSize={"10px"}
+                sx={{ float: "left" }}
+                xs={6}
+              >
+                Asked by:{" "}
+                <a href="#" onClick={() => RedirectURL(txId[i])}>
+                  {txId[i]}
+                </a>
+              </Grid>
+              <Grid item fontSize={"11px"} sx={{ float: "right" }} xs={6}>
+                {current.timestamp}
+              </Grid>
+              <br></br>
+              <Grid item xs={12}>
+                <hr />
               </Grid>
             </div>
           );

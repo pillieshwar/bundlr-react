@@ -10,6 +10,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from "./routes/root";
 import ErrorPage from "./error-page";
 import Contact from "./routes/contact";
+import SingleQuestion from "./routes/singleQuestion";
 
 const client = new QueryClient();
 
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "contacts/:contactId",
+        path: "contacts/",
         element: <Contact />,
       },
       {
@@ -28,8 +29,12 @@ const router = createBrowserRouter([
         element: <AskQuestions />,
       },
       {
-        path: "findAnswers",
+        path: "findAnswers/",
         element: <FindAnswers />,
+      },
+      {
+        path: "tx/:txId",
+        element: <SingleQuestion />,
       },
     ],
   },

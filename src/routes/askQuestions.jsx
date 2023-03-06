@@ -1,4 +1,3 @@
-import { Form } from "react-router-dom";
 import { ethers } from "ethers";
 import { WebBundlr } from "@bundlr-network/client";
 import React from "react";
@@ -48,7 +47,7 @@ export default function AskQuestions() {
     const tags = [
       { name: "App-Name", value: "web3fordev" },
       { name: "Content-Type", value: "application/json" },
-      { name: "Version", value: "0.0.0" },
+      { name: "Version", value: "0.0.1" },
     ];
     const tx = bundlr.createTransaction(questionData, { tags });
     await tx.sign();
