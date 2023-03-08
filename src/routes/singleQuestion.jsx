@@ -1,19 +1,15 @@
-import { Form } from "react-router-dom";
 import React from "react";
 import axios from "axios";
-import { useQuery } from "react-query";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import { styled } from "@mui/material/styles";
-import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
-import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import { useRef } from "react";
 import Box from "@mui/material/Box";
 import { ethers } from "ethers";
 import { WebBundlr } from "@bundlr-network/client";
+import constants from "./constants";
 
 import Arweave from "arweave";
 const arweave = Arweave.init({
@@ -31,7 +27,6 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const endpoint = "https://arweave.net/graphql/";
 const FILMS_QUERY = `
-
 {
     transactions(
       tags: [
@@ -69,12 +64,11 @@ export default function SingleQuestion() {
   const [postAnswer, setPostAnswer] = React.useState("");
   const [questionTransactionId, setQuestionTransactionId] = React.useState("");
   const [data, setData] = React.useState([]);
+  const [display, setDisplay] = React.useState([]);
 
   const location = useLocation();
-  if (location.pathname.includes("/tx")) {
-    var transactionId = location.pathname.split("/").pop();
-    console.log("transactionId: ", transactionId);
-  }
+  var transactionId = "";
+
   var txidTable = [];
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
   const answerHandle = (e) => {
@@ -83,17 +77,24 @@ export default function SingleQuestion() {
   console.log("questionTransactionId: ", questionTransactionId);
   React.useEffect(() => {
     async function postQuery() {
-      const response = await axios({
-        url: endpoint,
-        method: "POST",
-        data: {
-          query: `{
+      if (location.pathname.includes("/tx")) {
+        transactionId = location.pathname.split("/").pop();
+        console.log("transactionId: ", transactionId);
+      }
+
+      if (transactionId != "") {
+        const response = await axios({
+          url: endpoint,
+          method: "POST",
+          data: {
+            query: `{
             transactions(
               tags: [
-                { name: "App-Name", values: ["web3fordev"] },
-                { name: "Content-Type", values: ["application/json"] }
-                { name: "Version", values: ["0.0.1"] },
-                { name: "Question-Tx-Id", values: [${questionTransactionId}] }
+                { name: "App-Name", values: ["${constants.APP_NAME}"] },
+                { name: "Content-Type", values: ["${constants.CONTENT_TYPE}"] },
+                { name: "Version", values: ["${constants.VERSION}"] },
+                { name: "Question", values: ["false"] }
+                { name: "Question-Tx-Id", values: ["${transactionId}"] },
               ]
             ) {
               edges {
@@ -117,21 +118,45 @@ export default function SingleQuestion() {
               }
             }
           }`,
-        },
-      }).then((res) => {
-        setData(res?.data?.data?.transactions?.edges);
-      });
+          },
+        }).then((res) => {
+          setData(res?.data?.data?.transactions?.edges);
+        });
+      }
     }
     postQuery();
-  }, []);
+  }, [transactionId]);
   React.useEffect(() => {
     async function getSingleTransactionJson() {
-      setTransactionJson(await arweave.api.get(transactionId));
-      setQuestionTransactionId(transactionId);
+      if (transactionId != "") {
+        setTransactionJson(await arweave.api.get(transactionId));
+        setQuestionTransactionId(transactionId);
+      }
     }
     getSingleTransactionJson();
-  }, []);
+  }, [transactionId]);
 
+  React.useEffect(() => {
+    let promises = [];
+
+    if (data) {
+      data.map((current) => {
+        promises.push(arweave.api.get(current.node.id));
+      });
+
+      Promise.all(promises).then((results) => {
+        let oldDisplay = [...display];
+        results.map((res) => {
+          if (res?.data?.answer) {
+            oldDisplay.push(res?.data?.answer);
+          }
+        });
+        setDisplay(oldDisplay);
+      });
+    }
+  }, [data]);
+
+  console.log(display);
   const initialiseBundlr = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
@@ -159,9 +184,10 @@ export default function SingleQuestion() {
       },
     });
     const tags = [
-      { name: "App-Name", value: "web3fordev" },
-      { name: "Content-Type", value: "application/json" },
-      { name: "Version", value: "0.0.1" },
+      { name: "App-Name", value: constants.APP_NAME },
+      { name: "Content-Type", value: constants.CONTENT_TYPE },
+      { name: "Version", value: constants.VERSION },
+      { name: "Question", value: "false" },
       { name: "Question-Tx-Id", value: questionTransactionId },
     ];
     const tx = bundlr.createTransaction(questionData, { tags });
@@ -181,7 +207,7 @@ export default function SingleQuestion() {
     <div>
       <Grid container spacing={2}>
         <div>
-          <Grid mt={7} color="#3992FF" fontSize={"24px"} item xs={12}>
+          <Grid mt={3} color="#3992FF" fontSize={"24px"} item xs={12}>
             {transactionJson?.data?.question?.question_title}
           </Grid>
           <Grid color="#838181" fontSize={"10px"} item xs={12}>
@@ -200,20 +226,31 @@ export default function SingleQuestion() {
             </Grid>
           </Grid>
           <br></br>
-          <hr />
           <Grid container>
             <div>
               <Grid item xs={12}>
                 Answers
               </Grid>
-              <Grid container>
-                <Grid item xs={0.3}></Grid>
-                <Grid color="#838181" fontSize={"14px"} item xs={8}>
-                  {data?.data?.answer?.answer_body}
-                </Grid>
-              </Grid>
               <hr />
-
+              {display.map((currentAns, i) => {
+                return (
+                  <div>
+                    <Grid container>
+                      <Grid item xs={0.3}></Grid>
+                      <Grid
+                        key={i}
+                        color="#838181"
+                        fontSize={"14px"}
+                        item
+                        xs={8}
+                      >
+                        {currentAns?.answer_body}
+                      </Grid>
+                    </Grid>
+                    <hr />
+                  </div>
+                );
+              })}
               <Grid item xs={12}>
                 Your Answer
               </Grid>

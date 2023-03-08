@@ -4,6 +4,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { useRef } from "react";
+import constants from "./constants";
 
 export default function AskQuestions() {
   const [questionTitle, setQuestionTitle] = React.useState("");
@@ -45,9 +46,10 @@ export default function AskQuestions() {
       },
     });
     const tags = [
-      { name: "App-Name", value: "web3fordev" },
-      { name: "Content-Type", value: "application/json" },
-      { name: "Version", value: "0.0.1" },
+      { name: "App-Name", value: constants.APP_NAME },
+      { name: "Content-Type", value: constants.CONTENT_TYPE },
+      { name: "Version", value: constants.VERSION },
+      { name: "Question", value: "true" },
     ];
     const tx = bundlr.createTransaction(questionData, { tags });
     await tx.sign();

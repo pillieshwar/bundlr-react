@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
+import constants from "./constants";
 
 import Arweave from "arweave";
 const arweave = Arweave.init({
@@ -21,9 +22,10 @@ const FILMS_QUERY = `
 {
     transactions(
       tags: [
-        { name: "App-Name", values: ["web3fordev"] },
-        { name: "Content-Type", values: ["application/json"] }
-        { name: "Version", values: ["0.0.1"] }
+        { name: "App-Name", values: ["${constants.APP_NAME}"] },
+        { name: "Content-Type", values: ["${constants.CONTENT_TYPE}"] },
+        { name: "Version", values: ["${constants.VERSION}"] },
+        { name: "Question", values: ["true"] }
       ]
     ) {
       edges {
