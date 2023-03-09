@@ -1,8 +1,6 @@
 import React from "react";
 import axios from "axios";
-import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
-import { styled } from "@mui/material/styles";
 import { useLocation } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import { useRef } from "react";
@@ -18,46 +16,7 @@ const arweave = Arweave.init({
   protocol: "https",
 });
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "left",
-  color: theme.palette.text.secondary,
-}));
 const endpoint = "https://arweave.net/graphql/";
-const FILMS_QUERY = `
-{
-    transactions(
-      tags: [
-        { name: "App-Name", values: ["web3fordev"] },
-        { name: "Content-Type", values: ["application/json"] }
-        { name: "Version", values: ["0.0.0"] },
-        { name: "Question-Tx-Id", values: ["mwlvlB-9iyqe0PfjORx545stMDz2hL1EdGigb85I2h4"] }
-      ]
-    ) {
-      edges {
-        node {
-          id
-          owner {
-            address
-          }
-          data {
-            type
-          }
-          block {
-            height
-            timestamp
-          }
-          tags {
-            name
-            value
-          }
-        }
-      }
-    }
-  }
-`;
 
 export default function SingleQuestion() {
   const [transactionJson, setTransactionJson] = React.useState({});
@@ -69,7 +28,6 @@ export default function SingleQuestion() {
   const location = useLocation();
   var transactionId = "";
 
-  var txidTable = [];
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
   const answerHandle = (e) => {
     setPostAnswer(e.target.value);
@@ -82,8 +40,8 @@ export default function SingleQuestion() {
         console.log("transactionId: ", transactionId);
       }
 
-      if (transactionId != "") {
-        const response = await axios({
+      if (transactionId !== "") {
+        await axios({
           url: endpoint,
           method: "POST",
           data: {
@@ -128,7 +86,7 @@ export default function SingleQuestion() {
   }, [transactionId]);
   React.useEffect(() => {
     async function getSingleTransactionJson() {
-      if (transactionId != "") {
+      if (transactionId !== "") {
         setTransactionJson(await arweave.api.get(transactionId));
         setQuestionTransactionId(transactionId);
       }
