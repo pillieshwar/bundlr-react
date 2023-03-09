@@ -9,6 +9,8 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import { Link } from "react-router-dom";
 import constants from "./constants";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 import Arweave from "arweave";
 const arweave = Arweave.init({
@@ -97,17 +99,12 @@ export default function Contact() {
   }
   return (
     <div>
-      <Grid container spacing={2}>
-        {display.map((current, i) => {
-          return (
-            <div>
-              <Grid color="#3992FF" item xs={12}>
+      {display.map((current, i) => {
+        return (
+          <Grid container spacing={2}>
+            <Grid color="#3992FF" item xs={12}>
+              <span>
                 <Link to={`/tx/${txId[i]}`}>{current.question_title}</Link>
-              </Grid>
-              <Grid color="#838181" fontSize={"14px"} item xs={12}>
-                {current.question_body}
-              </Grid>
-              <Grid item xs={12}>
                 {current.tags.map((tag) => {
                   return (
                     <Chip
@@ -118,31 +115,67 @@ export default function Contact() {
                     />
                   );
                 })}
-              </Grid>
-              <br></br>
-              <Grid
-                item
-                color="black"
-                fontSize={"10px"}
-                sx={{ float: "left" }}
-                xs={6}
+              </span>
+            </Grid>
+            <Grid color="#838181" fontSize={"14px"} item xs={12}>
+              {/* style={{
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                width: "300px",
+                display: "block",
+                overflow: "hidden",
+                minHeight: "30px",
+              }} */}
+              <Typography
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "-webkit-box",
+                  WebkitLineClamp: "2",
+                  WebkitBoxOrient: "vertical",
+                }}
+                variant="body2"
+                gutterBottom
               >
-                Asked by:{" "}
-                <a href="#" onClick={() => RedirectURL(txId[i])}>
-                  {txId[i]}
-                </a>
-              </Grid>
-              <Grid item fontSize={"11px"} sx={{ float: "right" }} xs={6}>
-                {current.timestamp}
-              </Grid>
-              <br></br>
-              <Grid item xs={12}>
-                <hr />
-              </Grid>
-            </div>
-          );
-        })}
-      </Grid>
+                {current.question_body}
+              </Typography>
+            </Grid>
+            {/* <Grid item xs={12}>
+              {current.tags.map((tag) => {
+                return (
+                  <Chip
+                    label={tag}
+                    size="small"
+                    color="success"
+                    variant="outlined"
+                  />
+                );
+              })}
+            </Grid> */}
+            <br></br>
+            <Grid
+              item
+              color="black"
+              fontSize={"10px"}
+              sx={{ float: "left" }}
+              xs={12}
+              md={10}
+            >
+              Asked by:{" "}
+              <a href="#" onClick={() => RedirectURL(txId[i])}>
+                {txId[i]}
+              </a>
+            </Grid>
+            <Grid item fontSize={"11px"} md={2} xs={12}>
+              {current.timestamp}
+            </Grid>
+            <br></br>
+            <Grid item xs={12}>
+              <hr />
+            </Grid>
+          </Grid>
+        );
+      })}
     </div>
   );
 }

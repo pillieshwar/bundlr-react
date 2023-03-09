@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 import { WebBundlr } from "@bundlr-network/client";
 import constants from "./constants";
 
+import ReactMarkdown from "react-markdown";
 import Arweave from "arweave";
 const arweave = Arweave.init({
   host: "arweave.net",
@@ -180,7 +181,9 @@ export default function SingleQuestion() {
               x
             </Grid>
             <Grid color="#838181" fontSize={"14px"} item xs={8}>
-              {transactionJson?.data?.question?.question_body}
+              <ReactMarkdown>
+                {transactionJson?.data?.question?.question_body}
+              </ReactMarkdown>
             </Grid>
           </Grid>
           <br></br>
@@ -202,7 +205,7 @@ export default function SingleQuestion() {
                         item
                         xs={8}
                       >
-                        {currentAns?.answer_body}
+                        <ReactMarkdown>{currentAns?.answer_body}</ReactMarkdown>
                       </Grid>
                     </Grid>
                     <hr />
