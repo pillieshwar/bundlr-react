@@ -105,9 +105,11 @@ export default function Contact() {
             <Grid color="#3992FF" item xs={12}>
               <span>
                 <Link to={`/tx/${txId[i]}`}>{current.question_title}</Link>
+                <br></br>
                 {current.tags.map((tag) => {
                   return (
                     <Chip
+                      sx={{ mr: 0.5 }}
                       label={tag}
                       size="small"
                       color="success"
